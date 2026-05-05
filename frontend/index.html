@@ -1365,7 +1365,7 @@ function autoLogVisitor() {
   formData.append('device_type', device);
   
   // Send silently in background
-  fetch('../backend/log_guest.php', {
+  fetch('https://grapikaatkulturaadmin.up.railway.app/log_guest.php', {
     method: 'POST',
     body: formData
   }).catch(error => {
@@ -1423,7 +1423,7 @@ function submitMessage(e) {
   formData.append('message', message);
   
   // Send to backend
-  fetch('../backend/submit_message.php', {
+  fetch('https://grapikaatkulturaadmin.up.railway.app/submit_message.php', {
     method: 'POST',
     body: formData
   })
