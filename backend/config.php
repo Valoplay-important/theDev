@@ -6,6 +6,7 @@ define('DB_SERVERNAME', getenv('MYSQLHOST') ?: 'localhost');
 define('DB_USERNAME', getenv('MYSQLUSER') ?: 'root');
 define('DB_PASSWORD', getenv('MYSQLPASSWORD') ?: '');
 define('DB_NAME', getenv('MYSQLDATABASE') ?: 'grapika_logs');
+$port = getenv('MYSQLPORT') ?: 3306;
 
 // Security settings
 define('ADMIN_PASSWORD', 'grapika2026'); // Change this to a strong password!
