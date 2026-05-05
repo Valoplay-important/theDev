@@ -33,17 +33,23 @@ if (session_status() === PHP_SESSION_NONE) {
 // Function to get secure database connection
 function getDatabaseConnection() {
     $port = intval(getenv('MYSQLPORT') ?: 3306);
-    $conn = new mysqli(DB_SERVERNAME, DB_USERNAME, DB_PASSWORD, DB_NAME, $port);
+    $host = DB_SERVERNAME;
+    $dbname = DB_NAME;
+    $user = DB_USERNAME;
+    $pass = DB_PASSWORD;
     
-    if ($conn->connect_error) {
+    try {
+        $pdo = new PDO(
+            "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
+            $user,
+            $pass
+        );
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo;
+    } catch (PDOException $e) {
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Database connection error']));
+        exit(json_encode(['success' => false, 'message' => 'Database connection error: ' . $e->getMessage()]));
     }
-    
-    // Set charset to utf8mb4 to prevent encoding attacks
-    $conn->set_charset('utf8mb4');
-    
-    return $conn;
 }
 
 // Function to validate input length
