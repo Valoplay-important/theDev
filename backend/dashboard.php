@@ -18,23 +18,16 @@ $_SESSION['admin_login_time'] = time();
 $conn = getDatabaseConnection();
 
 // Get statistics
-$messages_result = $conn->query("SELECT COUNT(*) as total FROM messages");
-$messages_count = $messages_result->fetch_assoc()['total'];
-
-$guests_result = $conn->query("SELECT COUNT(*) as total FROM guest_logs");
-$guests_count = $guests_result->fetch_assoc()['total'];
-
-$unique_visitors = $conn->query("SELECT COUNT(DISTINCT email) as total FROM guest_logs");
-$unique_count = $unique_visitors->fetch_assoc()['total'];
-
-$unique_contacts = $conn->query("SELECT COUNT(DISTINCT email) as total FROM messages");
-$unique_contacts_count = $unique_contacts->fetch_assoc()['total'];
+$messages_count = $conn->query("SELECT COUNT(*) as total FROM messages")->fetchColumn();
+$guests_count = $conn->query("SELECT COUNT(*) as total FROM guest_logs")->fetchColumn();
+$unique_count = $conn->query("SELECT COUNT(DISTINCT email) as total FROM guest_logs")->fetchColumn();
+$unique_contacts_count = $conn->query("SELECT COUNT(DISTINCT email) as total FROM messages")->fetchColumn();
 
 // Get recent messages
-$recent_messages = $conn->query("SELECT * FROM messages ORDER BY created_at DESC LIMIT 5");
+$recent_messages = $conn->query("SELECT * FROM messages ORDER BY created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
 // Get recent logs
-$recent_logs = $conn->query("SELECT * FROM guest_logs ORDER BY created_at DESC LIMIT 5");
+$recent_logs = $conn->query("SELECT * FROM guest_logs ORDER BY created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle logout
 if (isset($_GET['logout'])) {
@@ -42,6 +35,7 @@ if (isset($_GET['logout'])) {
     header('Location: admin_login.php');
     exit;
 }
+?>
 
 ?>
 <!DOCTYPE html>
@@ -387,7 +381,7 @@ if (isset($_GET['logout'])) {
                 <a href="view_messages.php" class="view-all-btn">View All →</a>
             </div>
             
-            <?php if ($recent_messages->num_rows > 0): ?>
+            <?php if (count($recent_messages) > 0): ?>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -400,7 +394,7 @@ if (isset($_GET['logout'])) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($msg = $recent_messages->fetch_assoc()): ?>
+                            <?php foreach ($recent_messages as $msg): ?>
                                 <tr>
                                     <td><strong><?php echo htmlspecialchars($msg['name'], ENT_QUOTES, 'UTF-8'); ?></strong></td>
                                     <td><?php echo htmlspecialchars($msg['email'], ENT_QUOTES, 'UTF-8'); ?></td>
@@ -408,7 +402,7 @@ if (isset($_GET['logout'])) {
                                     <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars(substr($msg['message'], 0, 50), ENT_QUOTES, 'UTF-8'); ?>...</td>
                                     <td><span class="timestamp"><?php echo htmlspecialchars(date('M d, Y H:i', strtotime($msg['created_at']))); ?></span></td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -427,7 +421,7 @@ if (isset($_GET['logout'])) {
                 <a href="view_logs.php" class="view-all-btn">View All →</a>
             </div>
             
-            <?php if ($recent_logs->num_rows > 0): ?>
+            <?php if (count($recent_logs) > 0): ?>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -440,7 +434,7 @@ if (isset($_GET['logout'])) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($log = $recent_logs->fetch_assoc()): ?>
+                            <?php foreach ($recent_logs as $log): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($log['email'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
@@ -459,7 +453,7 @@ if (isset($_GET['logout'])) {
                                     <td><?php echo htmlspecialchars(substr($log['visit_time'], 0, 5)); ?></td>
                                     <td><span class="timestamp"><?php echo htmlspecialchars($log['ip_address'], ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
