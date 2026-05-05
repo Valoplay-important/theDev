@@ -1,19 +1,12 @@
 <?php
 // Security Configuration File
 
-// Database configuration
-define('DB_SERVERNAME', getenv('MYSQLHOST') ?: 'localhost');
-define('DB_USERNAME', getenv('MYSQLUSER') ?: 'root');
-define('DB_PASSWORD', getenv('MYSQLPASSWORD') ?: '');
-define('DB_NAME', getenv('MYSQLDATABASE') ?: 'grapika_logs');
-$port = getenv('MYSQLPORT') ?: 3306;
-
 // Security settings
-define('ADMIN_PASSWORD', 'grapika2026'); // Change this to a strong password!
+define('ADMIN_PASSWORD', 'grapika2026');
 define('MAX_INPUT_LENGTH', 500);
 define('MAX_MESSAGE_LENGTH', 5000);
-define('RATE_LIMIT_REQUESTS', 5); // Max requests per minute
-define('SESSION_TIMEOUT', 1800); // 30 minutes
+define('RATE_LIMIT_REQUESTS', 5);
+define('SESSION_TIMEOUT', 1800);
 
 // Set secure headers
 header('X-Content-Type-Options: nosniff');
@@ -25,22 +18,23 @@ header('Content-Security-Policy: default-src \'self\'; style-src \'self\' \'unsa
 // Start session with security settings
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', 0); // Set to 1 if using HTTPS
+    ini_set('session.cookie_secure', 0);
     ini_set('session.cookie_samesite', 'Strict');
     session_start();
 }
 
 // Function to get secure database connection
 function getDatabaseConnection() {
-    $port = intval(getenv('MYSQLPORT') ?: 3306);
-    $host = getenv('MYSQLHOST') ?: 'localhost';
-    $dbname = getenv('MYSQLDATABASE') ?: 'grapika_logs';
-    $user = getenv('MYSQLUSER') ?: 'root';
-    $pass = getenv('MYSQLPASSWORD') ?: '';
-    
     try {
+        $url = parse_url(getenv('DATABASE_URL'));
+        $host = $url['host'];
+        $port = $url['port'];
+        $user = $url['user'];
+        $pass = $url['pass'];
+        $db   = ltrim($url['path'], '/');
+
         $pdo = new PDO(
-            "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
+            "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4",
             $user,
             $pass,
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
@@ -48,7 +42,7 @@ function getDatabaseConnection() {
         return $pdo;
     } catch (PDOException $e) {
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Database connection error: ' . $e->getMessage()]));
+        exit(json_encode(['success' => false, 'message' => $e->getMessage()]));
     }
 }
 
@@ -66,11 +60,9 @@ function sanitizeInput($input) {
 function checkRateLimit($identifier) {
     $key = 'rate_limit_' . md5($identifier);
     $count = isset($_SESSION[$key]) ? $_SESSION[$key] : 0;
-    
     if ($count >= RATE_LIMIT_REQUESTS) {
         return false;
     }
-    
     $_SESSION[$key] = $count + 1;
     return true;
 }
