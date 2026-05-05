@@ -158,7 +158,7 @@ $uniqueVisitors = count($uniqueEmails);
                                 <td><?php echo $row['visit_time']; ?></td>
                                 <td><span class="device-badge <?php echo $deviceClass; ?>"><?php echo $row['device_type']; ?></span></td>
                                 <td><?php echo htmlspecialchars($row['ip_address']); ?></td>
-                                <td><?php echo $row['created_at']; ?></td>
+                                <td><?php echo date('g:i A', strtotime($row['created_at'])); ?></td>
                                 <td>
                                     <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this log entry? This cannot be undone.')">
                                         <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
