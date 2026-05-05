@@ -17,6 +17,19 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
+// Handle delete log
+if (isset($_POST['delete_id']) && is_numeric($_POST['delete_id'])) {
+    try {
+        $conn = getDatabaseConnection();
+        $stmt = $conn->prepare("DELETE FROM guest_logs WHERE id = ?");
+        $stmt->execute([$_POST['delete_id']]);
+        header('Location: view_logs.php?deleted=1');
+        exit;
+    } catch (Exception $e) {
+        $error = "Failed to delete log";
+    }
+}
+
 $conn = getDatabaseConnection();
 
 $sql = "SELECT id, email, visit_date, visit_time, device_type, ip_address, created_at FROM guest_logs ORDER BY created_at DESC LIMIT 10000";
@@ -69,6 +82,9 @@ $uniqueVisitors = count($uniqueEmails);
         .stat-num { font-size: 2.5rem; color: #d4ff00; font-weight: bold; margin-bottom: 0.5rem; }
         .stat-label { font-size: 0.8rem; color: rgba(240,236,227,0.6); text-transform: uppercase; letter-spacing: 0.1em; }
         .no-data { text-align: center; padding: 3rem; color: rgba(240,236,227,0.4); }
+        .delete-btn { background: rgba(255,61,0,0.15); color: #ff3d00; border: 1px solid rgba(255,61,0,0.3); padding: 0.4rem 0.8rem; border-radius: 3px; cursor: pointer; font-size: 0.75rem; font-weight: bold; transition: all 0.2s; }
+        .delete-btn:hover { background: rgba(255,61,0,0.3); border-color: #ff3d00; }
+        .alert-success { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: #00ff88; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 2px solid rgba(212,255,0,0.2); padding: 1rem; }
             .sidebar-footer { position: static; border-top: 1px solid rgba(212,255,0,0.1); margin-top: 1rem; padding: 1rem; }
@@ -96,6 +112,9 @@ $uniqueVisitors = count($uniqueEmails);
 
     <div class="main-content">
         <div class="container">
+            <?php if (isset($_GET['deleted'])): ?>
+                <div class="alert-success">✓ Log entry deleted successfully!</div>
+            <?php endif; ?>
             <h1 style="color: #d4ff00; text-shadow: 2px 2px 0 #ff3d00; margin-bottom: 2rem;">📊 Guest Visit Logs</h1>
 
             <?php if ($totalVisits > 0): ?>
@@ -127,6 +146,7 @@ $uniqueVisitors = count($uniqueEmails);
                             <th>Device</th>
                             <th>IP Address</th>
                             <th>Logged At</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -139,6 +159,12 @@ $uniqueVisitors = count($uniqueEmails);
                                 <td><span class="device-badge <?php echo $deviceClass; ?>"><?php echo $row['device_type']; ?></span></td>
                                 <td><?php echo htmlspecialchars($row['ip_address']); ?></td>
                                 <td><?php echo $row['created_at']; ?></td>
+                                <td>
+                                    <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this log entry? This cannot be undone.')">
+                                        <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+                                        <button type="submit" class="delete-btn">🗑️ Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
