@@ -2,10 +2,10 @@
 // Security Configuration File
 
 // Database configuration
-define('DB_SERVERNAME', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'grapika_logs');
+define('DB_SERVERNAME', getenv('MYSQLHOST') ?: 'localhost');
+define('DB_USERNAME', getenv('MYSQLUSER') ?: 'root');
+define('DB_PASSWORD', getenv('MYSQLPASSWORD') ?: '');
+define('DB_NAME', getenv('MYSQLDATABASE') ?: 'grapika_logs');
 
 // Security settings
 define('ADMIN_PASSWORD', 'grapika2026'); // Change this to a strong password!
