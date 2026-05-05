@@ -32,7 +32,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Function to get secure database connection
 function getDatabaseConnection() {
-    $conn = new mysqli(DB_SERVERNAME, DB_USERNAME, DB_PASSWORD, DB_NAME);
+    $port = intval(getenv('MYSQLPORT') ?: 3306);
+    $conn = new mysqli(DB_SERVERNAME, DB_USERNAME, DB_PASSWORD, DB_NAME, $port);
     
     if ($conn->connect_error) {
         http_response_code(500);
