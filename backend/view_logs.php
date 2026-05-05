@@ -155,10 +155,10 @@ $uniqueVisitors = count($uniqueEmails);
                             <tr>
                                 <td><?php echo htmlspecialchars($row['email']); ?></td>
                                 <td><?php echo $row['visit_date']; ?></td>
-                                <td><?php echo $row['visit_time']; ?></td>
+                                <td><?php $time = DateTime::createFromFormat('H:i:s', $row['visit_time']); echo $time ? $time->format('g:i A') : htmlspecialchars($row['visit_time']); ?></td>
                                 <td><span class="device-badge <?php echo $deviceClass; ?>"><?php echo $row['device_type']; ?></span></td>
                                 <td><?php echo htmlspecialchars($row['ip_address']); ?></td>
-                                <td><?php echo date('g:i A', strtotime($row['created_at'])); ?></td>
+                                <td><?php $tz = new DateTimeZone('Asia/Manila'); $dt = new DateTime($row['created_at'], new DateTimeZone('UTC')); $dt->setTimezone($tz); echo $dt->format('g:i A'); ?></td>
                                 <td>
                                     <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this log entry? This cannot be undone.')">
                                         <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">

@@ -122,7 +122,7 @@ $unique_contacts = $conn->query("SELECT COUNT(DISTINCT email) as count FROM mess
                             <div class="message-email"><?php echo htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="message-project"><?php echo htmlspecialchars($row['project_type'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="message-content"><?php echo nl2br(htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8')); ?></div>
-                            <div class="message-date">📅 <?php echo htmlspecialchars(date('M d, Y · g:i A', strtotime($row['created_at']))); ?></div>
+                            <div class="message-date">📅 <?php $tz = new DateTimeZone('Asia/Manila'); $dt = new DateTime($row['created_at'], new DateTimeZone('UTC')); $dt->setTimezone($tz); echo htmlspecialchars($dt->format('M d, Y \· g:i A')); ?></div>
                             <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this message? This cannot be undone.')">
                                 <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
                                 <button type="submit" class="delete-btn">🗑️ Delete</button>
