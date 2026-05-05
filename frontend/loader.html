@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grapika at Kultura</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #080808;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #080808;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    /* Noise overlay */
+    #loader::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Grid lines */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,255,0,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,255,0,0.035) 1px, transparent 1px);
+      background-size: 70px 70px;
+      opacity: 0;
+      animation: gridFadeIn 0.8s ease 0.6s forwards;
+      z-index: 2;
+    }
+
+    @keyframes gridFadeIn { to { opacity: 1; } }
+
+    /* Scanline */
+    .scanline {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(200,255,0,0.2), transparent);
+      z-index: 3;
+      animation: scanMove 2.2s linear infinite;
+    }
+
+    @keyframes scanMove {
+      0%  { top: -2px; }
+      100%{ top: 100%; }
+    }
+
+    /* Corner brackets */
+    .corner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      z-index: 10;
+      opacity: 0;
+    }
+    .corner.tl { top: 28px; left: 28px; border-top: 2px solid #c8ff00; border-left: 2px solid #c8ff00; animation: cIn 0.35s ease 0.3s forwards; }
+    .corner.tr { top: 28px; right: 28px; border-top: 2px solid #c8ff00; border-right: 2px solid #c8ff00; animation: cIn 0.35s ease 0.4s forwards; }
+    .corner.bl { bottom: 28px; left: 28px; border-bottom: 2px solid #c8ff00; border-left: 2px solid #c8ff00; animation: cIn 0.35s ease 0.5s forwards; }
+    .corner.br { bottom: 28px; right: 28px; border-bottom: 2px solid #c8ff00; border-right: 2px solid #c8ff00; animation: cIn 0.35s ease 0.6s forwards; }
+
+    @keyframes cIn {
+      from { opacity: 0; transform: scale(0.4); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* Side rotated text */
+    .side-label {
+      position: absolute;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.18);
+      text-transform: uppercase;
+      z-index: 10;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.9s forwards;
+      white-space: nowrap;
+    }
+    .side-label.left  { left: 20px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
+    .side-label.right { right: 20px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Center logo */
+    .logo-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -54%);
+      z-index: 20;
+      text-align: center;
+    }
+
+    .logo-main {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(100px, 20vw, 180px);
+      line-height: 1;
+      color: #c8ff00;
+      letter-spacing: -6px;
+      opacity: 0;
+      animation: logoIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+    }
+
+    @keyframes logoIn {
+      from { opacity: 0; transform: scale(1.5); filter: blur(12px); }
+      to   { opacity: 1; transform: scale(1);   filter: blur(0); }
+    }
+
+    /* Glitch layers */
+    .glitch-r, .glitch-b {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(100px, 20vw, 180px);
+      line-height: 1;
+      letter-spacing: -6px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 19;
+      white-space: nowrap;
+    }
+    .glitch-r {
+      color: #ff003c;
+      transform: translate(calc(-50% + 6px), -54%);
+      clip-path: polygon(0 15%, 100% 15%, 100% 38%, 0 38%);
+      animation: glR 0.09s steps(1) 0.92s forwards;
+    }
+    .glitch-b {
+      color: #00f0ff;
+      transform: translate(calc(-50% - 6px), -54%);
+      clip-path: polygon(0 58%, 100% 58%, 100% 78%, 0 78%);
+      animation: glB 0.09s steps(1) 0.98s forwards;
+    }
+
+    @keyframes glR { 0%{opacity:0.9} 100%{opacity:0} }
+    @keyframes glB { 0%{opacity:0.9} 100%{opacity:0} }
+
+    .logo-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 5px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0;
+      animation: fadeUp 0.4s ease 1.0s forwards;
+    }
+
+    /* Progress */
+    .progress-wrap {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      z-index: 20;
+      opacity: 0;
+      animation: fadeUp 0.3s ease 0.5s forwards;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #c8ff00;
+      box-shadow: 0 0 10px rgba(200,255,0,0.9);
+      transition: width 0.05s linear;
+    }
+
+    .progress-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #c8ff00;
+      text-align: right;
+      margin-top: 10px;
+      letter-spacing: 3px;
+    }
+
+    /* Location tag */
+    .location-tag {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      z-index: 20;
+      white-space: nowrap;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.8s forwards;
+    }
+
+    /* Flash on complete */
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: #c8ff00;
+      opacity: 0;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    /* Curtains */
+    .curtain-l, .curtain-r {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 50%;
+      z-index: 40;
+      background: #080808;
+    }
+    .curtain-l { left: 0;  transform-origin: left; }
+    .curtain-r { right: 0; transform-origin: right; }
+
+    .curtain-stripe {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      width: 3px;
+      background: #c8ff00;
+      transform: translateX(-50%) scaleY(0);
+      transform-origin: center;
+      z-index: 41;
+    }
+
+    /* Curtain open animation (triggered via JS class) */
+    .curtain-l.open  { animation: openL 0.85s cubic-bezier(0.77,0,0.18,1) forwards; }
+    .curtain-r.open  { animation: openR 0.85s cubic-bezier(0.77,0,0.18,1) forwards; }
+    .curtain-stripe.grow  { animation: stripeGrow 0.4s ease-out forwards; }
+    .curtain-stripe.shrink { animation: stripeShrink 0.25s ease-in forwards; }
+
+    @keyframes openL { to { transform: scaleX(0); } }
+    @keyframes openR { to { transform: scaleX(0); } }
+    @keyframes stripeGrow  { from{transform:translateX(-50%) scaleY(0)} to{transform:translateX(-50%) scaleY(1)} }
+    @keyframes stripeShrink{ from{opacity:1} to{opacity:0} }
+
+    /* Final fade out of entire loader */
+    #loader.exit {
+      animation: loaderExit 0.5s ease forwards;
+    }
+    @keyframes loaderExit {
+      to { opacity: 0; visibility: hidden; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="grid"></div>
+  <div class="scanline"></div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="side-label left">Grapika at Kultura</div>
+  <div class="side-label right">Legazpi · Albay · PH</div>
+
+  <div class="glitch-r">GK</div>
+  <div class="glitch-b">GK</div>
+
+  <div class="logo-wrap">
+    <div class="logo-main">GK</div>
+    <div class="logo-sub">Creative Developer &amp; Designer</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="bar"></div>
+    </div>
+    <div class="progress-num" id="num">000</div>
+  </div>
+
+  <div class="location-tag">Legazpi City, Albay 4500 &middot; Philippines</div>
+
+  <div class="flash" id="flash"></div>
+  <div class="curtain-l" id="cl"></div>
+  <div class="curtain-r" id="cr"></div>
+  <div class="curtain-stripe" id="cs"></div>
+</div>
+
+<script>
+  const REDIRECT_URL = 'index.html'; // ← change to your index page
+  const TOTAL_MS     = 2800;         // total loader duration before redirect
+  const SESSION_KEY  = 'loaderShown'; // sessionStorage key
+
+  // Check if loader was already shown in this session
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    // Loader already shown, skip to index.html immediately
+    document.getElementById('loader').style.opacity = '0';
+    window.location.href = REDIRECT_URL;
+  } else {
+    // Mark loader as shown for this session
+    sessionStorage.setItem(SESSION_KEY, 'true');
+
+    // Proceed with animation
+    const bar   = document.getElementById('bar');
+    const num   = document.getElementById('num');
+    const flash = document.getElementById('flash');
+    const cl    = document.getElementById('cl');
+    const cr    = document.getElementById('cr');
+    const cs    = document.getElementById('cs');
+    const loader = document.getElementById('loader');
+
+    // Animate progress counter
+    const startTime = performance.now();
+    const duration  = 1600;
+
+    function easeInOut(t) {
+      return t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    }
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const raw = Math.min(elapsed / duration, 1);
+      const eased = easeInOut(raw);
+      const pct = Math.floor(eased * 100);
+
+      bar.style.width = pct + '%';
+      num.textContent = String(pct).padStart(3, '0');
+
+      if (raw < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        // Progress done — trigger curtain sequence
+        triggerCurtain();
+      }
+    }
+
+    // Start after a short delay
+    setTimeout(() => requestAnimationFrame(tick), 400);
+
+    function triggerCurtain() {
+      // 1. Grow stripe
+      cs.classList.add('grow');
+
+      setTimeout(() => {
+        // 2. Flash
+        flash.style.transition = 'opacity 0.15s';
+        flash.style.opacity = '0.15';
+        setTimeout(() => { flash.style.opacity = '0'; }, 150);
+
+        // 3. Open curtains + fade stripe
+        cs.classList.add('shrink');
+        cl.classList.add('open');
+        cr.classList.add('open');
+
+        // 4. Exit loader & redirect
+        setTimeout(() => {
+          loader.classList.add('exit');
+          setTimeout(() => {
+            window.location.href = REDIRECT_URL;
+          }, 500);
+        }, 800);
+
+      }, 420);
+    }
+  }
+</script>
+</body>
+</html>

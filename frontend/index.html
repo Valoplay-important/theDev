@@ -297,9 +297,85 @@ footer{border-top:1px solid rgba(240,236,227,.08);padding:2.5rem var(--gutter);d
 @keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.05);}66%{transform:translate(-20px,15px) scale(.95);}}
 @keyframes pulse-glow{0%{opacity:.5;transform:scale(1);}50%{opacity:1;transform:scale(1.2);}100%{opacity:.5;transform:scale(1);}}
 @keyframes float-drift{0%{transform:translateX(0) translateY(0);}33%{transform:translateX(30px) translateY(-40px);}66%{transform:translateX(-20px) translateY(20px);}100%{transform:translateX(0) translateY(0);}}
+
+/* ── PRELOADER STYLES ── */
+#loader {position:fixed;inset:0;background:#080808;z-index:9999;overflow:hidden;opacity:1;transition:opacity 0.5s ease;}
+#loader.exit {opacity:0;visibility:hidden;}
+#loader.skip {display:none !important;}
+#loader::after {content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");opacity:0.35;pointer-events:none;z-index:1;}
+.loader-grid {position:absolute;inset:0;background-image:linear-gradient(rgba(200,255,0,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(200,255,0,0.035) 1px,transparent 1px);background-size:70px 70px;opacity:0;animation:loaderGridFadeIn 0.8s ease 0.6s forwards;z-index:2;}
+@keyframes loaderGridFadeIn{to{opacity:1;}}
+.loader-scanline {position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(200,255,0,0.2),transparent);z-index:3;animation:loaderScanMove 2.2s linear infinite;}
+@keyframes loaderScanMove{0%{top:-2px;}100%{top:100%;}}
+.loader-corner {position:absolute;width:28px;height:28px;z-index:10;opacity:0;}
+.loader-corner.tl{top:28px;left:28px;border-top:2px solid #c8ff00;border-left:2px solid #c8ff00;animation:loaderCornIn 0.35s ease 0.3s forwards;}
+.loader-corner.tr{top:28px;right:28px;border-top:2px solid #c8ff00;border-right:2px solid #c8ff00;animation:loaderCornIn 0.35s ease 0.4s forwards;}
+.loader-corner.bl{bottom:28px;left:28px;border-bottom:2px solid #c8ff00;border-left:2px solid #c8ff00;animation:loaderCornIn 0.35s ease 0.5s forwards;}
+.loader-corner.br{bottom:28px;right:28px;border-bottom:2px solid #c8ff00;border-right:2px solid #c8ff00;animation:loaderCornIn 0.35s ease 0.6s forwards;}
+@keyframes loaderCornIn{from{opacity:0;transform:scale(0.4);}to{opacity:1;transform:scale(1);}}
+.loader-side-label {position:absolute;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.18);text-transform:uppercase;z-index:10;opacity:0;animation:loaderFadeUp 0.5s ease 0.9s forwards;white-space:nowrap;}
+.loader-side-label.left{left:20px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:center;}
+.loader-side-label.right{right:20px;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;}
+@keyframes loaderFadeUp{from{opacity:0;}to{opacity:1;}}
+.loader-logo-wrap {position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);z-index:20;text-align:center;}
+.loader-logo-main {font-family:'Bebas Neue',sans-serif;font-size:clamp(100px,20vw,180px);line-height:1;color:#c8ff00;letter-spacing:-6px;opacity:0;animation:loaderLogoIn 0.55s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;}
+@keyframes loaderLogoIn{from{opacity:0;transform:scale(1.5);filter:blur(12px);}to{opacity:1;transform:scale(1);filter:blur(0);}}
+.loader-glitch-r,.loader-glitch-b {position:absolute;top:50%;left:50%;font-family:'Bebas Neue',sans-serif;font-size:clamp(100px,20vw,180px);line-height:1;letter-spacing:-6px;opacity:0;pointer-events:none;z-index:19;white-space:nowrap;}
+.loader-glitch-r {color:#ff003c;transform:translate(calc(-50% + 6px),-54%);clip-path:polygon(0 15%,100% 15%,100% 38%,0 38%);animation:loaderGlR 0.09s steps(1) 0.92s forwards;}
+.loader-glitch-b {color:#00f0ff;transform:translate(calc(-50% - 6px),-54%);clip-path:polygon(0 58%,100% 58%,100% 78%,0 78%);animation:loaderGlB 0.09s steps(1) 0.98s forwards;}
+@keyframes loaderGlR{0%{opacity:0.9;}100%{opacity:0;}}
+@keyframes loaderGlB{0%{opacity:0.9;}100%{opacity:0;}}
+.loader-logo-sub {font-family:'Space Mono',monospace;font-size:10px;letter-spacing:5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:8px;opacity:0;animation:loaderFadeUp 0.4s ease 1.0s forwards;}
+.loader-progress-wrap {position:absolute;bottom:80px;left:50%;transform:translateX(-50%);width:200px;z-index:20;opacity:0;animation:loaderFadeUp 0.3s ease 0.5s forwards;}
+.loader-progress-track {width:100%;height:1px;background:rgba(255,255,255,0.08);position:relative;}
+.loader-progress-fill {height:100%;width:0%;background:#c8ff00;box-shadow:0 0 10px rgba(200,255,0,0.9);transition:width 0.05s linear;}
+.loader-progress-num {font-family:'Space Mono',monospace;font-size:11px;color:#c8ff00;text-align:right;margin-top:10px;letter-spacing:3px;}
+.loader-location-tag {position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;z-index:20;white-space:nowrap;opacity:0;animation:loaderFadeUp 0.5s ease 0.8s forwards;}
+.loader-flash {position:absolute;inset:0;background:#c8ff00;opacity:0;z-index:50;pointer-events:none;}
+.loader-curtain-l,.loader-curtain-r {position:absolute;top:0;bottom:0;width:50%;z-index:40;background:#080808;}
+.loader-curtain-l{left:0;transform-origin:left;}
+.loader-curtain-r{right:0;transform-origin:right;}
+.loader-curtain-stripe {position:absolute;top:0;bottom:0;left:50%;width:3px;background:#c8ff00;transform:translateX(-50%) scaleY(0);transform-origin:center;z-index:41;}
+.loader-curtain-l.open{animation:loaderOpenL 0.85s cubic-bezier(0.77,0,0.18,1) forwards;}
+.loader-curtain-r.open{animation:loaderOpenR 0.85s cubic-bezier(0.77,0,0.18,1) forwards;}
+.loader-curtain-stripe.grow{animation:loaderStripeGrow 0.4s ease-out forwards;}
+.loader-curtain-stripe.shrink{animation:loaderStripeShrink 0.25s ease-in forwards;}
+@keyframes loaderOpenL{to{transform:scaleX(0);}}
+@keyframes loaderOpenR{to{transform:scaleX(0);}}
+@keyframes loaderStripeGrow{from{transform:translateX(-50%) scaleY(0);}to{transform:translateX(-50%) scaleY(1);}}
+@keyframes loaderStripeShrink{from{opacity:1;}to{opacity:0;}}
 </style>
 </head>
 <body>
+
+<!-- PRELOADER -->
+<div id="loader">
+  <div class="loader-grid"></div>
+  <div class="loader-scanline"></div>
+  <div class="loader-corner tl"></div>
+  <div class="loader-corner tr"></div>
+  <div class="loader-corner bl"></div>
+  <div class="loader-corner br"></div>
+  <div class="loader-side-label left">Grapika at Kultura</div>
+  <div class="loader-side-label right">Legazpi · Albay · PH</div>
+  <div class="loader-glitch-r">GK</div>
+  <div class="loader-glitch-b">GK</div>
+  <div class="loader-logo-wrap">
+    <div class="loader-logo-main">GK</div>
+    <div class="loader-logo-sub">Creative Developer & Designer</div>
+  </div>
+  <div class="loader-progress-wrap">
+    <div class="loader-progress-track">
+      <div class="loader-progress-fill" id="loaderBar"></div>
+    </div>
+    <div class="loader-progress-num" id="loaderNum">000</div>
+  </div>
+  <div class="loader-location-tag">Legazpi City, Albay 4500 · Philippines</div>
+  <div class="loader-flash" id="loaderFlash"></div>
+  <div class="loader-curtain-l" id="loaderCurtainL"></div>
+  <div class="loader-curtain-r" id="loaderCurtainR"></div>
+  <div class="loader-curtain-stripe" id="loaderCurtainStripe"></div>
+</div>
 
 <div class="progress-bar" id="progressBar"></div>
 
@@ -1384,4 +1460,69 @@ function submitMessage(e) {
     submitText.textContent = 'SEND IT →';
   });
 }
+</script>
+
+<!-- PRELOADER SCRIPT -->
+<script>
+  const SESSION_KEY = 'preloaderShown';
+
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    // Preloader already shown, hide it immediately
+    document.getElementById('loader').classList.add('skip');
+  } else {
+    // Mark preloader as shown
+    sessionStorage.setItem(SESSION_KEY, 'true');
+
+    const loaderBar = document.getElementById('loaderBar');
+    const loaderNum = document.getElementById('loaderNum');
+    const loaderFlash = document.getElementById('loaderFlash');
+    const loaderCurtainL = document.getElementById('loaderCurtainL');
+    const loaderCurtainR = document.getElementById('loaderCurtainR');
+    const loaderCurtainStripe = document.getElementById('loaderCurtainStripe');
+    const loader = document.getElementById('loader');
+
+    const startTime = performance.now();
+    const duration = 1000;  // Progress bar animation - 4 seconds
+
+    function easeOut(t) {
+      return 1 - (1-t) * (1-t);
+    }
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const raw = Math.min(elapsed / duration, 1);
+      const eased = easeOut(raw);
+      const pct = Math.floor(eased * 100);
+
+      loaderBar.style.width = pct + '%';
+      loaderNum.textContent = String(pct).padStart(3, '0');
+
+      if (raw < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        triggerCurtain();
+      }
+    }
+
+    setTimeout(() => requestAnimationFrame(tick), 400);
+
+    function triggerCurtain() {
+      loaderCurtainStripe.classList.add('grow');
+
+      setTimeout(() => {
+        loaderFlash.style.transition = 'opacity 0.15s';
+        loaderFlash.style.opacity = '0.15';
+        setTimeout(() => { loaderFlash.style.opacity = '0'; }, 150);
+
+        loaderCurtainStripe.classList.add('shrink');
+        loaderCurtainL.classList.add('open');
+        loaderCurtainR.classList.add('open');
+      }, 420);
+    }
+
+    // Show loader for 4.5 seconds minimum, then exit
+    setTimeout(() => {
+      loader.classList.add('exit');
+    }, 4500);
+  }
 </script>
