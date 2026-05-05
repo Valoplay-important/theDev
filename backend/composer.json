@@ -1,0 +1,8 @@
+{
+    "name": "thedev/backend",
+    "description": "theDev backend",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    }
+}
