@@ -1,9 +1,13 @@
 <?php
 // Database configuration
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "grapika_logs";
+$servername = getenv('MYSQLHOST') ?: 'localhost';
+$username = getenv('MYSQLUSER') ?: 'root';
+$password = getenv('MYSQLPASSWORD') ?: '';
+$dbname = getenv('MYSQLDATABASE') ?: 'grapika_logs';
+$port = getenv('MYSQLPORT') ?: 3306;
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, '', $port);
 
 // Create connection
 $conn = new mysqli($servername, $username, $password);
