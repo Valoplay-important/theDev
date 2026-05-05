@@ -33,18 +33,18 @@ if (session_status() === PHP_SESSION_NONE) {
 // Function to get secure database connection
 function getDatabaseConnection() {
     $port = intval(getenv('MYSQLPORT') ?: 3306);
-    $host = DB_SERVERNAME;
-    $dbname = DB_NAME;
-    $user = DB_USERNAME;
-    $pass = DB_PASSWORD;
+    $host = getenv('MYSQLHOST') ?: 'localhost';
+    $dbname = getenv('MYSQLDATABASE') ?: 'grapika_logs';
+    $user = getenv('MYSQLUSER') ?: 'root';
+    $pass = getenv('MYSQLPASSWORD') ?: '';
     
     try {
         $pdo = new PDO(
             "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
             $user,
-            $pass
+            $pass,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $pdo;
     } catch (PDOException $e) {
         http_response_code(500);
